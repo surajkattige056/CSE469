@@ -1,121 +1,197 @@
+#include "stdafx.h"
 #include "address4forensics.h"
-#include<stdio.h>
-#include<stdlib.h>
-#include<string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 #include <tuple>
 #include <iostream>
+
+using namespace std;
+
+output_pairs L;
+output_pairs P;
+output_pairs C;
+
+output_pairs b;
+output_pairs B;
+output_pairs s;
+output_pairs I;
+output_pairs p;
+
+output_pairs c;
+output_pairs k;
+output_pairs r;
+output_pairs t;
+output_pairs f;
+
+int counter = 0;
 
 
 //This function separates the comment with numbers, as some of the arguments are in the format "--command==12344".
 //outString outputs the command, while the number string outputs the number
 //If number returned is -1, then the command is of the format -command
-std::tuple<std::string, std::string, int> address4forensics::number_retriever(std::string s){
-	std::string outString = "", number = "-1";
-	for(int i = 0; i < s.length(); i++){
-		if(s[i] == '='){
-			number = "";
-			for(int j = i + 1; j < s.length(); j++){
-				number = number + s[j];
-			}
-			return std::make_tuple(outString, number, std::stoi(number));
+
+int longFormCommand(string command)
+{
+	for (int i = 0; i < command.length(); i++)
+	{
+		if (command[i] == '=')
+		{
+			return (i + 1);
 		}
-		outString = outString + s[i];
 	}
-	return std::make_tuple(outString, number, std::stoi(number));
+	return -1;
+}
+
+long long number_retriever(string s)
+{
+	int loc = longFormCommand(s);
+	string number = "";
+	if (loc > 0)
+	{
+		for (int i = loc; i < s.length(); i++)
+		{
+			number = number + s[i];
+		}
+		return stoll(number);
+	}
+	return -1;
+}
+string returnCommand(string s, int loc)
+{
+	string str = "";
+	for (int i = 0; i < (loc-1); i++)
+	{
+		str = str + s[i];
+	}
+	return str;
 }
 
 //This function parses the particular command-line argument given
 //op.flag is used to indicate whether the command needs to take the second argument into consideration.
-output_pairs address4forensics::argument_analyzer(std::string a, std::string b){
-	output_pairs op;
-	std::string command, number_string;
-	int number;
-	std::tie(command, number_string, number) = number_retriever(a);
-
-	//This check is done to see if the command is of the type '-command'
-	if(number < 0){
-		op.flag = true;
-		number = std::stoi(b);
+void argument_analyzer(string a, long long parm)
+{
+	string command = a;
+	int number = 0;
+	long long par = number_retriever(a);
+	if (par > 0)
+	{
+		parm = par;
+		command = returnCommand(a, longFormCommand(a));
 	}
-	
-	if((command=="-L") or (command =="--logical")){
+	else
+	{
+		counter++;
+	}
+
+
+	if ( (command.compare("-L") == 0) || (command.compare("--logical") == 0))
+	{
+		L.flag = true;
 		//TODO Write logic for -L
 	}
-	else if((command =="-P") or (command =="--physical")){
+	else if ((command.compare("-P") == 0) || (command.compare("--physical") == 0))
+	{
+		P.flag = true;
 		//TODO Write logic for -P
 	}
-	else if((command =="-C") or (command =="--cluster")){
+	else if ((command.compare("-C") == 0) || (command.compare("--cluster") == 0))
+	{
+		C.flag = true;
 		//TODO Write logic for -C
 	}
-	else if((command =="-b") or (command =="--partition-start")){
-
+	else if ((command.compare("-b") == 0) || (command.compare("--partition-start") == 0))
+	{
+		b.flag = true;
+		b.number = parm;
 		//TODO Write logic for -b
-		return op;
+		
 	}
-	else if((command =="-B") or (command == "--byte-address")){
+	else if ((command.compare("-B") == 0) || (command.compare("--byte-address") == 0))
+	{
+		B.flag = true;
 		//TODO Write logic for -B
 	}
-	else if((command =="-s") or (command == "--sector-size")){
+	else if ((command.compare("-s") == 0) || (command.compare("--sector-size") == 0))
+	{
+		s.flag = true;
+		s.number = parm;
+		B.number = parm;
 		//TODO Write logic for -s
-		return op;
+		
 	}
-	else if((command == "-l") or (command == "--logical-known")){
+	else if ((command.compare("-l") == 0) || (command.compare("--logical-known") == 0) )
+	{
+		I.flag = true;
+		I.number = parm;
 		//TODO Write logic for -l
-		return op;
+		
 	}
-	else if((command == "-p") or (command == "--physical-known")){
+	else if ((command.compare("-p") == 0) || (command.compare("--physical-known") == 0 ))
+	{
+		p.flag = true;
+		p.number = parm;
 		//TODO Write logic for -p
-		return op;
+		
 	}
-	else if((command == "-c") or (command == "--cluster-known")){
+	else if ((command.compare("-c") == 0) || (command.compare("--cluster-known") == 0))
+	{
+		c.flag = true;
+		c.number = parm;
 		//TODO Write logic for -c
-		return op;
+		
 	}
-	else if((command =="-k") or (command == "--cluster-size")){
+	else if ((command.compare("-k") == 0) || (command.compare("--cluster-size") == 0))
+	{
+		k.flag = true;
+		k.number = parm;
 		//TODO Write logic for -k
-		return op;
+		
 	}
-	else if((command =="-r") or (command == "--reserved")){
+	else if ((command.compare("-r") == 0) || (command.compare("--reserved") == 0))
+	{
+		r.flag = true;
+		r.number = parm;
 		//TODO Write logic for -r 
-		return op;
+		
 	}
-	else if((command == "-t") or (command == "--fat-tables")){
+	else if ((command.compare("-t") == 0) || (command.compare("--fat-tables") == 0))
+	{
+		t.flag = true;
+		t.number = parm;
 		//TODO Write logic for -t
-		return op;
+		
 	}
-	else if((command == "-f") or (command == "--fat-length")){
+	else if ((command.compare("-f") == 0) || (command.compare("--fat-length") == 0))
+	{
+		f.flag = true;
+		f.number = parm;
 		//TODO Write logic for -f
-		return op;
+		
 	}
 	//If none of the arguments match, then throw an error to indicate invalid comment
-	else{
-		op.error = true;
+	else 
+	{
+		throw "Non-valid arguement";
 	}
-	return op;
+	
 }
 
 
-int main(int argc, char **argv) {
-	std::string a, b;
-	int output = 0;
-	output_pairs op;
-	address4forensics addFor;
-	for(int i=1; i<argc; i++){
-		a=argv[i];
-		if((i + 1) < argc){
-			b = argv[i+1];
+int main(int argc, char **argv) 
+{
+	argument_analyzer(argv[1], 0);
+	for (counter = 2; counter<argc; counter++) 
+	{
+		if (number_retriever(argv[counter]) < 0)
+		{
+			argument_analyzer(argv[counter], stoll(argv[counter + 1]));
 		}
-		op = addFor.argument_analyzer(a, b);
-
-	//If the input comment is invalid, then return -1
-		if(op.error == true){
-			return -1;
+		else
+		{
+			argument_analyzer(argv[counter], 0);
 		}
-		if(op.flag==true){
-			i = i + 1;
-		}
-		output = output + op.number;
-		std::cout<<a<<"\n";
 	}
-	return output;
+	cout << b.number << "\n" << I.number << "\n" << p.number << "\n" << c.number << "\n" << k.number << "\n" << r.number << "\n" << t.number << "\n" << f.number << "\n"; // try different examples
+	return 0;
 }
