@@ -1,55 +1,203 @@
+#include "mac_conversion.h"
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <tuple>
+#include <stdlib.h>
+#include <string>
 
-#include "mac_conversion.h"
+bool T = false; 
+bool D = false;
+bool f = false;
+bool h = false;
 
-
-int mac_conversion::command_parser(std::string a, std::string b) {
-	if(a == "-T") {
-		//TODO Write logic for -T
+int command_parser(string a)
+{
+	//choice between -T and -D output
+	if (a == "-T") // Time output
+	{
+		T = true;
 	}
-	else if( a == "-D") {
-		//TODO Write logic for -D
+	else if (a == "-D") // Date output
+	{
+		D = true;
 	}
-	else if (a == "-f") {
-		
-		std::string  hex_value;
-		std::ifstream in_file;
-		in_file.open(b);
-		in_file >> hex_value;
-		//TODO Write logic for -f
+	//choice between -f and -h input
+	else if (a == "-f") // file input
+	{
+		f = true;
 	}
-	else if(a =="-h") {
-		std::string hex_value = b;
-		//TODO Write logic when -h is given
+	else if (a == "-h") // hex input
+	{
+		h = true;
 	}
-	
-	//This means the user has given an invalid input
-	else {
-		return -1;
+	else 
+	{
+		throw "Non-valid arguement";
 	}
 	return 0;
-}	
+}
 
+//convert string hex input of the notation 0x0000 to little endian format
+string toLittleEndian(string s)
+{
+	string str = "";
 
-int main(int argc, char **argv) {
+	str = str + s[4] + s[5] + s[2] + s[3];// 0x4a81 -> 0x814a
 
-	std::string a, b;
-	mac_conversion mc;
-	int number;
-	for(int i = 1; i < argc ; i++) {
-		a = argv[i];
-		if((i + 1) < argc) {
-			b = argv[i+1];
-		}
-		number = mc.command_parser(a, b);
-		if(number == -1){
-			std::cout << "INVALID INPUT";
-			return -1;
+	return str;
+}
+
+string parseFile(string fileName)
+{
+	ifstream inputFile(fileName);
+	string str;
+	getline(inputFile, str);
+	return str;
+}
+//convert hex to binary
+string hexToBinary(string s)
+{
+	string str = "";
+	for (int i = 0; i < s.length(); i++)
+	{
+		switch (s[i])
+		{
+			case '0':
+				str = str + "0000";
+				break;
+			case '1':
+				str = str + "0001";
+				break;
+			case '2':
+				str = str + "0010";
+				break;
+			case '3':
+				str = str + "0011";
+				break;
+			case '4':
+				str = str + "0100";
+				break;
+			case '5':
+				str = str + "0101";
+				break;
+			case '6':
+				str = str + "0110";
+				break;
+			case '7':
+				str = str + "0111";
+				break;
+			case '8':
+				str = str + "1000";
+				break;
+			case '9':
+				str = str + "1001";
+				break;
+			case 'A':
+			case 'a'://10
+				str = str + "1010";
+				break;
+			case 'B':
+			case 'b'://11
+				str = str + "1011";
+				break;
+			case 'C':
+			case 'c'://12
+				str = str + "1100";
+				break;
+			case 'D':
+			case 'd': //13
+				str = str + "1101";
+				break;
+			case 'E':
+			case 'e': //14
+				str = str + "1110";
+				break;
+			case 'F':
+			case 'f': //15
+				str = str + "1111";
+				break;
 		}
 	}
-	std::cout << number;
+	return str;
+}
+
+//Converting binary to a date
+void dateOutput(string binary)
+{
+	int year = 1980 + strtoull(binary.substr(0, 7).c_str(), NULL, 2);
+	int month = strtoull(binary.substr(7, 4).c_str(), NULL, 2);
+	int day = strtoull(binary.substr(11, 5).c_str(), NULL, 2);
+
+	string monthAbb = "";
+
+	switch (month)
+	{
+		case 1: monthAbb = "Jan"; break;
+		case 2: monthAbb = "Feb"; break;
+		case 3: monthAbb = "Mar"; break;
+		case 4: monthAbb = "Apr"; break;
+		case 5: monthAbb = "May"; break;
+		case 6: monthAbb = "June"; break;
+		case 7: monthAbb = "July"; break;
+		case 8: monthAbb = "Aug"; break;
+		case 9: monthAbb = "Sept"; break;
+		case 10: monthAbb = "Oct"; break;
+		case 11: monthAbb = "Nov"; break;
+		case 12: monthAbb = "Dec"; break;
+	}
+
+	cout << "Date: " << monthAbb << " " << day << ", " << year << "\n";
+
+
+}
+
+//Converting binary to time
+void timeOutput(string binary)
+{
+	string amPm = "AM";
+	int hours = strtoull(binary.substr(0, 5).c_str(), NULL, 2);
+	int minutes = strtoull(binary.substr(5, 6).c_str(), NULL, 2);
+	int seconds = 2 * strtoull(binary.substr(11, 5).c_str(), NULL, 2);
+
+	if (hours >= 12)
+	{
+		if (hours > 12)
+		{
+			hours = hours % 12;
+		}
+		amPm = "PM";
+	}
+
+	cout << "Time: " << hours << ":" << minutes << ":" << seconds << " " << amPm << "\n";
+}
+
+int main(int argc, char **argv) 
+{
+	string hexInput = argv[3], input;
+	for (int i = 1; i < (argc - 1); i++)
+	{
+		command_parser(argv[i]);	
+	}
+	
+	//parsing if file
+	if (f)
+	{
+		hexInput = parseFile(hexInput);
+	}
+	
+	hexInput = toLittleEndian(hexInput);
+	input = hexToBinary(hexInput);
+
+	//parsing binary as if it's time
+	if (T)
+	{
+		timeOutput(input);
+	}
+	//parsing binary as if it's a date
+	else
+	{
+		dateOutput(input);
+	}
+
 	return 0;
 }
