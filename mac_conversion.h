@@ -1,10 +1,9 @@
 #include <stdio.h>
-#include<iostream>
+#include <iostream>
 #include <fstream>
-#include <tuple>
+#include <stdlib.h>
+#include <string>
 
 
-class mac_conversion{
-	public:
-		int command_parser(std::string a, std::string b);
-};
+
+using namespace std;
