@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "address4forensics.h"
 #include <stdio.h>
+#include <stdexcept>
 #include <stdlib.h>
 #include <string>
 #include <tuple>
@@ -109,12 +110,15 @@ void argument_analyzer(string a, long long parm)
 	else if ((command.compare("-B") == 0) || (command.compare("--byte-address") == 0))
 	{
 		B.flag = true;
+		B.number = 512;
+		counter--;
 		//TODO Write logic for -B
 	}
 	else if ((command.compare("-s") == 0) || (command.compare("--sector-size") == 0))
 	{
 		s.flag = true;
 		s.number = parm;
+		B.number = parm;
 		//TODO Write logic for -s
 		
 	}
@@ -170,7 +174,7 @@ void argument_analyzer(string a, long long parm)
 	//If none of the arguments match, then throw an error to indicate invalid comment
 	else 
 	{
-		throw "Non-valid arguement";
+		throw runtime_error("Non-valid arguement");
 	}
 	
 }
@@ -179,9 +183,11 @@ void argument_analyzer(string a, long long parm)
 int main(int argc, char **argv) 
 {
 	argument_analyzer(argv[1], 0);
+	string bk;
 	for (counter = 2; counter<argc; counter++) 
 	{
-		if (number_retriever(argv[counter]) < 0)
+		bk = argv[counter];
+		if (number_retriever(argv[counter]) < 0 && bk.compare("-B") != 0 )
 		{
 			argument_analyzer(argv[counter], stoll(argv[counter + 1]));
 		}
@@ -190,17 +196,17 @@ int main(int argc, char **argv)
 			argument_analyzer(argv[counter], 0);
 		}
 	}
-	//cout << b.number << "\n" << I.number << "\n" << p.number << "\n" << c.number << "\n" << k.number << "\n" << r.number << "\n" << t.number << "\n" << f.number << "\n"; // try different examples
 
+	long output;
 	if (L.flag)
 	{
 		if (c.flag)
 		{
-			cout << r.number + (t.number * f.number) + (c.number - 2) * k.number << "\n";
+			output = r.number + (t.number * f.number) + (c.number - 2) * k.number;
 		}
 		else if (p.flag)
 		{
-			cout << p.number - b.number << "\n";
+			output = p.number - b.number;
 		}
 		else
 		{
@@ -211,11 +217,11 @@ int main(int argc, char **argv)
 	{
 		if (c.flag)
 		{
-			cout << b.number + r.number + (t.number * f.number) + (c.number - 2) * k.number << "\n"; 
+			output = b.number + r.number + (t.number * f.number) + (c.number - 2) * k.number;
 		}
 		else if(l.flag)
 		{
-			cout << b.number + l.number << "\n";
+			output = b.number + l.number;
 		}
 		else
 		{
@@ -226,16 +232,25 @@ int main(int argc, char **argv)
 	{
 		if (l.flag)
 		{
-			cout << ((l.number - r.number - (t.number * f.number)) / k.number) + 2 << "\n";
+			output = ((l.number - r.number - (t.number * f.number)) / k.number) + 2;
 		}
 		else if (p.flag)
 		{
-			cout << ( ( p.number - b.number - r.number - (t.number * f.number)) / k.number) + 2;
+			output = ( ( p.number - b.number - r.number - (t.number * f.number)) / k.number) + 2;
 		}
 		else
 		{
-			throw "Either -l or -p must be given for the -C option";
+			cout << "Either -l or -p must be given for the -C option\n";
+			exit(EXIT_FAILURE);
 		}
 	}
+
+	if (B.flag)
+	{
+		output = output * B.number;
+	}
+
+	cout << output << "\n";
+
 	return 0;
 }
