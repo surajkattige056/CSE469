@@ -6,7 +6,6 @@
 #include <tuple>
 #include <iostream>
 
-using namespace std;
 
 output_pairs L;
 output_pairs P;
@@ -15,7 +14,7 @@ output_pairs C;
 output_pairs b;
 output_pairs B;
 output_pairs s;
-output_pairs I;
+output_pairs l;
 output_pairs p;
 
 output_pairs c;
@@ -116,14 +115,13 @@ void argument_analyzer(string a, long long parm)
 	{
 		s.flag = true;
 		s.number = parm;
-		B.number = parm;
 		//TODO Write logic for -s
 		
 	}
 	else if ((command.compare("-l") == 0) || (command.compare("--logical-known") == 0) )
 	{
-		I.flag = true;
-		I.number = parm;
+		l .flag = true;
+		l.number = parm;
 		//TODO Write logic for -l
 		
 	}
@@ -192,6 +190,52 @@ int main(int argc, char **argv)
 			argument_analyzer(argv[counter], 0);
 		}
 	}
-	cout << b.number << "\n" << I.number << "\n" << p.number << "\n" << c.number << "\n" << k.number << "\n" << r.number << "\n" << t.number << "\n" << f.number << "\n"; // try different examples
+	//cout << b.number << "\n" << I.number << "\n" << p.number << "\n" << c.number << "\n" << k.number << "\n" << r.number << "\n" << t.number << "\n" << f.number << "\n"; // try different examples
+
+	if (L.flag)
+	{
+		if (c.flag)
+		{
+			cout << r.number + (t.number * f.number) + (c.number - 2) * k.number << "\n";
+		}
+		else if (p.flag)
+		{
+			cout << p.number - b.number << "\n";
+		}
+		else
+		{
+			throw "Either -c or -p have to be given for the -L option";
+		}
+	}
+	else if (P.flag)
+	{
+		if (c.flag)
+		{
+			cout << b.number + r.number + (t.number * f.number) + (c.number - 2) * k.number << "\n"; 
+		}
+		else if(l.flag)
+		{
+			cout << b.number + l.number << "\n";
+		}
+		else
+		{
+			throw "Either -c or -l have to be given for the -P option";
+		}
+	}
+	else if (C.flag)
+	{
+		if (l.flag)
+		{
+			cout << ((l.number - r.number - (t.number * f.number)) / k.number) + 2 << "\n";
+		}
+		else if (p.flag)
+		{
+			cout << ( ( p.number - b.number - r.number - (t.number * f.number)) / k.number) + 2;
+		}
+		else
+		{
+			throw "Either -l or -p must be given for the -C option";
+		}
+	}
 	return 0;
 }
