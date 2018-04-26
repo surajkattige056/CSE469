@@ -54,7 +54,7 @@ string parseFile(string fileName)
 	ifstream inputFile(fileName.c_str());
 	if(inputFile.fail())
 	{
-		cout << "file does not exist\n"
+		cout << "file does not exist\n";
 		exit(EXIT_FAILURE);
 	}
 	string str;
