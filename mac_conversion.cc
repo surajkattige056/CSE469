@@ -1,4 +1,3 @@
-#include "mac_conversion.h"
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -9,6 +8,8 @@ bool T = false;
 bool D = false;
 bool f = false;
 bool h = false;
+
+using namespace std;
 
 int command_parser(string a)
 {
@@ -32,7 +33,8 @@ int command_parser(string a)
 	}
 	else 
 	{
-		throw "Non-valid arguement";
+		cout << "Invalid arguement\n";
+		exit(EXIT_FAILURE);
 	}
 	return 0;
 }
@@ -42,16 +44,22 @@ string toLittleEndian(string s)
 {
 	string str = "";
 
-	str = str + s[4] + s[5] + s[2] + s[3];// 0x4a81 -> 0x814a
-
+	//str = str + s[4] + s[5] + s[2] + s[3];// 0x4a81 -> 0x814a
+	str = str + s[2] + s[3] + s[4] + s[5];
 	return str;
 }
 
 string parseFile(string fileName)
 {
-	ifstream inputFile(fileName);
+	ifstream inputFile(fileName.c_str());
+	if(inputFile.fail())
+	{
+		cout << "file does not exist\n"
+		exit(EXIT_FAILURE);
+	}
 	string str;
 	getline(inputFile, str);
+
 	return str;
 }
 //convert hex to binary
@@ -171,8 +179,17 @@ void timeOutput(string binary)
 	cout << "Time: " << hours << ":" << minutes << ":" << seconds << " " << amPm << "\n";
 }
 
+
 int main(int argc, char **argv) 
 {
+
+	if (argc < 4 )
+	{
+		cout << "Invalid number of arguements\n";
+		exit(EXIT_FAILURE);
+
+	}
+
 	string hexInput = argv[3], input;
 	for (int i = 1; i < (argc - 1); i++)
 	{
@@ -201,3 +218,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
